@@ -2,6 +2,11 @@
 Changelog for package routine_behaviours
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.0.4 (2014-11-12)
+------------------
+* Fixed file permissions.
+* Contributors: Nick Hawes
+
 0.0.3 (2014-11-12)
 ------------------
 * Corrected rosdep.
