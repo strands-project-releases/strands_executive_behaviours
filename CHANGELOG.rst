@@ -2,6 +2,12 @@
 Changelog for package routine_behaviours
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.0.9 (2014-11-23)
+------------------
+* Added additional necessary replication.
+* Added rgbd recording.
+* Contributors: Nick Hawes
+
 0.0.8 (2014-11-22)
 ------------------
 * Added more flexible options for patrol behaviours.
