@@ -24,10 +24,11 @@ from routine_behaviours.cfg import ChargingThresholdsConfig
 class RobotRoutine(object):
 
     """Wraps up all the routine stuff with charging etc."""
-    def __init__(self, daily_start, daily_end, idle_duration):
+    def __init__(self, daily_start, daily_end, idle_duration, charging_point = 'ChargingPoint'):
 
         self.daily_start = daily_start
         self.daily_end = daily_end
+        self.charging_point = charging_point
         self._create_services()
 
         rospy.loginfo('Fetching parameters from dynamic_reconfigure')
@@ -52,7 +53,7 @@ class RobotRoutine(object):
         # create routine structure
         self.routine = task_routine.DailyRoutine(daily_start, daily_end)
         # create the object which will talk to the scheduler
-        self.runner = task_routine.DailyRoutineRunner(self.daily_start, self.daily_end, self.add_tasks, day_start_cb=self.on_day_start, day_end_cb=self.on_day_end, tasks_allowed_fn=self.battery_ok)
+        self.runner = task_routine.DailyRoutineRunner(self.daily_start, self.daily_end, self.add_tasks, day_start_cb=self.on_day_start, day_end_cb=self.on_day_end, tasks_allowed_fn=self.task_allowed_now)
 
 
         # calculate how long to sleep for overnight
@@ -87,6 +88,10 @@ class RobotRoutine(object):
         self.set_execution_status(True)
 
         rospy.Subscriber('current_schedule', ExecutionStatus, self._check_idle)
+
+
+    def task_allowed_now(self, task):
+        return self.battery_ok() or task.start_node_id == self.charging_point
 
     def dynamic_reconfigure_cb(self, config, level):
         rospy.loginfo("Config set to {force_charge_threshold}, {force_charge_addition}".format(**config))
@@ -127,7 +132,18 @@ class RobotRoutine(object):
         rostime_now = rospy.get_rostime()
         now = datetime.fromtimestamp(rostime_now.to_sec(), tzlocal()).time()
 
-        if self.battery_ok() and self.is_during_day(now):
+        # if the task to get the robot on to the charge station fails is some way it could 
+        # get strandard. The battery recovery will kick in later, but we need to keep trying 
+        # in order to get the night tasks launched, which are only sent when charging
+
+
+        on_charger = self.battery_state is not None and (self.battery_state.charging or self.battery_state.powerSupplyPresent)
+
+        # if it's night time, we're not doing anything and we're not on the charger
+        if not self.is_during_day(now) and not schedule.currently_executing and not on_charger:
+            self.demand_charge(rospy.Duration(10 * 60.0))
+
+        elif self.is_during_day(now) and self.battery_ok() :
 
             if schedule.currently_executing:
                 self.idle_count = 0
@@ -286,13 +302,13 @@ class RobotRoutine(object):
             If delta not supplied, just do once during the start to end window
         """
 
-        if not daily_start:
+        if daily_start is None:
             daily_start = self.daily_start
 
-        if not daily_end:
+        if daily_end is None:
             daily_end = self.daily_end
 
-        if not repeat_delta:
+        if repeat_delta is None:
             repeat_delta = delta_between(daily_start, daily_end)
 
 
