@@ -17,18 +17,15 @@ from routine_behaviours.robot_routine import RobotRoutine
 import random
 
 
-def create_patrol_task(waypoint_name):
-    return Task(start_node_id=waypoint_name, end_node_id=waypoint_name, max_duration=rospy.Duration(30))
 
 
 class PatrolRoutine(RobotRoutine):
     """ Creates a routine which simply visits nodes. """
 
-    def __init__(self, daily_start, daily_end, tour_duration_estimate=None, idle_duration=rospy.Duration(5), charging_point = 'ChargingPoint'):
+    def __init__(self, daily_start, daily_end, idle_duration=rospy.Duration(5), charging_point = 'ChargingPoint'):
         # super(PatrolRoutine, self).__init__(daily_start, daily_end)        
         RobotRoutine.__init__(self, daily_start, daily_end, idle_duration=idle_duration, charging_point=charging_point)
-        self.node_names = set()
-        self.tour_duration_estimate = tour_duration_estimate
+        self.node_names = set()        
         rospy.Subscriber('topological_map', TopologicalMap, self.map_callback)
         self.random_nodes = []
 
@@ -71,13 +68,12 @@ class PatrolRoutine(RobotRoutine):
             waypoints = self.get_nodes()
 
         if not repeat_delta:
-            # ignoring this now
-            # if not self.tour_duration_estimate:
+            # ignoring this now            
             single_node_estimate = self.max_single_trip_time(waypoints).to_sec()
             tour_duration_estimate = single_node_estimate * (len(waypoints)-1) * 2
             repeat_delta = timedelta(seconds=tour_duration_estimate)
 
-        tasks = [ create_patrol_task(n) for n in waypoints ]
+        tasks = [ self.create_patrol_task(n) for n in waypoints ]
 
         self.create_task_routine(tasks=tasks, daily_start=daily_start, daily_end=daily_end, repeat_delta=repeat_delta)
 
@@ -97,6 +93,9 @@ class PatrolRoutine(RobotRoutine):
             self.random_nodes = list(self.random_nodes)
 
         rospy.loginfo('Idle for too long, generating a random waypoint task')
-        self.add_tasks([create_patrol_task(random.choice(self.random_nodes))])
+        self.add_tasks([self.create_patrol_task(random.choice(self.random_nodes))])
     
+
+    def create_patrol_task(self, waypoint_name, max_duration=rospy.Duration(30)):
+        return Task(start_node_id=waypoint_name, end_node_id=waypoint_name, max_duration=max_duration)
 
