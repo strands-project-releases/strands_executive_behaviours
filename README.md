@@ -1,3 +1,24 @@
+## strands_executive_behaviours (indigo) - 0.0.15-0
+
+The packages in the `strands_executive_behaviours` repository were released into the `indigo` distro by running `/usr/bin/bloom-release --non-interactive -t indigo -r indigo strands_executive_behaviours` on `Tue, 28 Apr 2015 11:03:42 -0000`
+
+The `routine_behaviours` package was released.
+
+Version of package(s) in repository `strands_executive_behaviours`:
+- upstream repository: https://github.com/strands-project/strands_executive_behaviours.git
+- release repository: https://github.com/strands-project-releases/strands_executive_behaviours.git
+- rosdistro version: `0.0.14-0`
+- old version: `0.0.14-0`
+- new version: `0.0.15-0`
+
+Versions of tools used:
+- bloom version: `0.5.12`
+- catkin_pkg version: `0.2.4`
+- rosdep version: `0.10.30`
+- rosdistro version: `0.3.5`
+- vcstools version: `0.1.35`
+
+
 ## strands_executive_behaviours (indigo) - 0.0.14-0
 
 The packages in the `strands_executive_behaviours` repository were released into the `indigo` distro by running `/usr/bin/bloom-release --non-interactive -t indigo -r indigo strands_executive_behaviours` on `Tue, 21 Apr 2015 11:29:34 -0000`
