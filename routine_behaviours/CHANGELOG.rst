@@ -2,6 +2,11 @@
 Changelog for package routine_behaviours
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.0.15 (2015-04-28)
+-------------------
+* increase force charge threshold to 30 to avoid battery level getting to low
+* Contributors: Bruno Lacerda
+
 0.0.14 (2015-04-21)
 -------------------
 * Removed redundant/confusing legacy code.
